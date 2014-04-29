@@ -10,7 +10,7 @@
     "require": {
         "php": ">=5.3.0",
         "illuminate/support": "4.1.*",
-        "google/apiclient": "dev-master"
+        "google/apiclient": "1.*"
     },
     "autoload": {
         "classmap": [
