@@ -1,6 +1,8 @@
 <?php namespace Mrynk\L4GoogleApi;
 
 use Illuminate\Auth\AuthServiceProvider;
+use Mrynk\L4GoogleApi\GoogleUserProvider;
+use Mrynk\L4GoogleApi\GoogleAuthGuard;
 
 class L4GoogleApiServiceProvider extends AuthServiceProvider {
 
