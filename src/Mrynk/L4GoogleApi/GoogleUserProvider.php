@@ -52,10 +52,18 @@ class GoogleUserProvider implements UserProviderInterface
         if ($this->client->getAccessToken()) {
 
             $userinfo = $this->oauth2->userinfo->get();
-            $knownUser = $this->createModel()->newQuery()->where( 'google_id', $userinfo->id )->first();
-            if( !$knownUser )
-                $this->createModel()->fill( (array) $userinfo )->save();
-            return $knownUser;
+            $user = $this->createModel()->newQuery()->where( 'google_id', $userinfo->id )->first();
+            if( !$user )
+            {
+                $user = $this->createModel();
+
+                $fillWith = (array) $userinfo;
+                $fillWith['google_id'] = $userinfo->id;
+                unset( $fillWith['id'] );
+
+                $user->fill( $fillWith )->save();
+            }
+            return $user;
             //return new GenericUser( (array) $userinfo );
         }
     }
@@ -108,7 +116,7 @@ class GoogleUserProvider implements UserProviderInterface
         }
         return null;
     }
-    
+
     /**
      * Create a new instance of the model.
      *
