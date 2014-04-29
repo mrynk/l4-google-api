@@ -13,9 +13,6 @@
         "google/apiclient": "1.*"
     },
     "autoload": {
-        "classmap": [
-            "src/migrations"
-        ],
         "psr-0": {
             "Mrynk\\L4GoogleApi\\": "src/"
         }
