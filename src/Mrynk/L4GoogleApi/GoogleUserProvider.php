@@ -52,7 +52,11 @@ class GoogleUserProvider implements UserProviderInterface
         if ($this->client->getAccessToken()) {
 
             $userinfo = $this->oauth2->userinfo->get();
-            return new GenericUser( (array) $userinfo );
+            $knownUser = $this->createModel()->newQuery()->where( 'google_id', $userinfo->id )->first();
+            if( !$knownUser )
+                $this->createModel()->fill( (array) $userinfo )->save();
+            return $knownUser;
+            //return new GenericUser( (array) $userinfo );
         }
     }
 
@@ -103,6 +107,18 @@ class GoogleUserProvider implements UserProviderInterface
             return Redirect::to(filter_var($url, FILTER_SANITIZE_URL));
         }
         return null;
+    }
+    
+    /**
+     * Create a new instance of the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function createModel()
+    {
+        $class = '\\'.ltrim( \Config::get('auth.model'), '\\');
+
+        return new $class;
     }
 
 }
