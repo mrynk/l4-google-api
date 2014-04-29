@@ -20,5 +20,5 @@
             "Mrynk\\L4GoogleApi\\": "src/"
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "beta"
 }
