@@ -51,8 +51,19 @@ class GoogleUserProvider implements UserProviderInterface
     {
         if ($this->client->getAccessToken()) {
 
-            $userinfo = $this->oauth2->userinfo->get();
+            if( $this->client->isAccessTokenExpired() )
+                $this->client->refreshToken( Session::get( $this->getTokenName() . '_refresh' ) );
+
+            try {
+                $userinfo = $this->oauth2->userinfo->get();
+            } catch( Exception $e )
+            {
+                \Session::forget( $this->getTokenName() );
+                return null;
+            }
             $user = $this->createModel()->newQuery()->where( 'google_id', $userinfo->id )->first();
+
+
             if( !$user )
             {
                 $user = $this->createModel();
@@ -66,7 +77,12 @@ class GoogleUserProvider implements UserProviderInterface
                     unset( $fillWith[ $k ] );
                 }
 
+                if( \Session::has( $this->getTokenName() . '_refresh' ) )
+                    $user->refresh_token = \Session::get( $this->getTokenName() . '_refresh' );
                 $user->fill( $fillWith )->save();
+
+                if( $user->refresh_token )
+                    Session::put( $this->getTokenName() . '_refresh', $user->refresh_token );
             }
 
             return $user;
@@ -113,7 +129,12 @@ class GoogleUserProvider implements UserProviderInterface
         if ( isset( $_GET['code'] ) )
         {
             $this->client->authenticate( $_GET['code'] );
+            $data = json_decode( $this->client->getAccessToken(), true );
             Session::put( $this->getTokenName(), $this->client->getAccessToken() );
+            if( isset( $data['refresh_token'] ) )
+                Session::put( $this->getTokenName() . '_refresh', $data['refresh_token'] );
+            else
+                Session::forget( $this->getTokenName() . '_refresh', $data['refresh_token'] );
 
             // strip the querystring from the current URL
             $url = rtrim(preg_replace('|&?code=[^&]+|', '', URL::full()), '?');
