@@ -56,13 +56,19 @@ class GoogleUserProvider implements UserProviderInterface
             if( !$user )
             {
                 $user = $this->createModel();
-
+            }
+            if( $userinfo )
+            {
                 $fillWith = (array) $userinfo;
-                $fillWith['google_id'] = $userinfo->id;
-                unset( $fillWith['id'] );
+                foreach( \Config::get('l4-google-api::map_user_data') as $k => $v )
+                {
+                    $fillWith[ $v ] = $userinfo->$k;
+                    unset( $fillWith[ $k ] );
+                }
 
                 $user->fill( $fillWith )->save();
             }
+
             return $user;
             //return new GenericUser( (array) $userinfo );
         }

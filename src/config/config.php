@@ -43,4 +43,10 @@ return array(
     */
     'access_type' => 'offline',
 
+    'map_user_data' => array(
+        'id' => 'google_id',
+        'givenName' => 'firstname',
+        'familyName' => 'surname'
+    )
+
 );
