@@ -52,7 +52,13 @@ class GoogleUserProvider implements UserProviderInterface
         if ($this->client->getAccessToken()) {
 
             if( $this->client->isAccessTokenExpired() )
-                $this->client->refreshToken( Session::get( $this->getTokenName() . '_refresh' ) );
+                if( Session::get( $this->getTokenName() . '_refresh' ) )
+                    $this->client->refreshToken( Session::get( $this->getTokenName() . '_refresh' ) );
+                else {
+                    \Session::forget( $this->getTokenName() );
+                    return null;
+                }
+
 
             try {
                 $userinfo = $this->oauth2->userinfo->get();
@@ -77,7 +83,7 @@ class GoogleUserProvider implements UserProviderInterface
                     unset( $fillWith[ $k ] );
                 }
 
-                if( \Session::has( $this->getTokenName() . '_refresh' ) )
+                if( \Session::has( $this->getTokenName() . '_refresh' ) && \Session::get( $this->getTokenName() . '_refresh' ) )
                     $user->refresh_token = \Session::get( $this->getTokenName() . '_refresh' );
                 $user->fill( $fillWith )->save();
 
@@ -131,7 +137,7 @@ class GoogleUserProvider implements UserProviderInterface
             $this->client->authenticate( $_GET['code'] );
             $data = json_decode( $this->client->getAccessToken(), true );
             Session::put( $this->getTokenName(), $this->client->getAccessToken() );
-            if( isset( $data['refresh_token'] ) )
+            if( isset( $data['refresh_token'] ) && $data['refresh_token'] )
                 Session::put( $this->getTokenName() . '_refresh', $data['refresh_token'] );
             else
                 Session::forget( $this->getTokenName() . '_refresh' );
