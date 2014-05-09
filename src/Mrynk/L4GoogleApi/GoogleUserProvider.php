@@ -134,7 +134,7 @@ class GoogleUserProvider implements UserProviderInterface
             if( isset( $data['refresh_token'] ) )
                 Session::put( $this->getTokenName() . '_refresh', $data['refresh_token'] );
             else
-                Session::forget( $this->getTokenName() . '_refresh', $data['refresh_token'] );
+                Session::forget( $this->getTokenName() . '_refresh' );
 
             // strip the querystring from the current URL
             $url = rtrim(preg_replace('|&?code=[^&]+|', '', URL::full()), '?');
